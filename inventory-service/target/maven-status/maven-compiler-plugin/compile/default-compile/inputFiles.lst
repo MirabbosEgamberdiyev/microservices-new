@@ -1,0 +1,7 @@
+D:\microservices-new\inventory-service\src\main\java\com\programmingtechie\inventoryservice\dto\InventoryResponse.java
+D:\microservices-new\inventory-service\src\main\java\com\programmingtechie\inventoryservice\model\Inventory.java
+D:\microservices-new\inventory-service\src\main\java\com\programmingtechie\inventoryservice\repository\InventoryRepository.java
+D:\microservices-new\inventory-service\src\main\java\com\programmingtechie\inventoryservice\InventoryServiceApplication.java
+D:\microservices-new\inventory-service\src\main\java\com\programmingtechie\inventoryservice\controller\InventoryController.java
+D:\microservices-new\inventory-service\src\main\java\com\programmingtechie\inventoryservice\service\InventoryService.java
+D:\microservices-new\inventory-service\src\main\java\com\programmingtechie\inventoryservice\util\DataLoader.java

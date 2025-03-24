@@ -1,50 +1,190 @@
-version: '3.8'
-
+version: '3.7'
 services:
-  product-service:
-    build: ./product-service
-    ports:
-      - "8081:8081"
+  ## PostgreSQL Order-Service
+  postgres-order:
+    container_name: postgres-order
+    image: postgres:latest
     environment:
-      - SPRING_DATA_MONGODB_HOST=mongodb
-      - SPRING_DATA_MONGODB_PORT=27017
-      - SPRING_DATA_MONGODB_DATABASE=productService
-    depends_on:
-      - mongodb
-
-  order-service:
-    build: ./order-service
+      POSTGRES_DB: order-service
+      POSTGRES_USER: ptechie
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./postgres-order:/var/lib/postgresql/data
     ports:
-      - "8082:8082"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/order_service
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=1234
-    depends_on:
-      - postgres
-
-  inventory-service:
-    build: ./inventory-service
-    ports:
-      - "8083:8083"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/inventory_service
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=1234
-    depends_on:
-      - postgres
-
-  postgres:
-    image: postgres:15
+      - "5431:5432"
     restart: always
+
+  ## PostgreSQL Inventory-Service
+  postgres-inventory:
+    container_name: postgres-inventory
+    image: postgres:latest
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: inventory-service
+      POSTGRES_USER: ptechie
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./postgres-inventory:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    restart: always
 
-  mongodb:
-    image: mongo:6
+  ## MongoDB Service
+  mongo:
+    container_name: mongo
+    image: mongo:4.4.14
     restart: always
     ports:
       - "27017:27017"
+    volumes:
+      - ./mongo-data:/data/db
+
+  ## Keycloak with PostgreSQL
+  keycloak-postgres:
+    container_name: keycloak-postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./postgres-keycloak:/var/lib/postgresql/data
+    restart: always
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:18.0.0
+    command: [ "start-dev", "--import-realm" ]
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: keycloak-postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./realms/:/opt/keycloak/data/import/
+    depends_on:
+      - keycloak-postgres
+
+  ## Kafka and Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: broker
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  ## Zipkin
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+
+  ## Eureka Server
+  discovery-server:
+    image: microservices-tutorial/discovery-server:latest
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - zipkin
+
+  ## API Gateway
+  api-gateway:
+    image: microservices-tutorial/api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8181:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-server
+
+  ## Product Service
+  product-service:
+    container_name: product-service
+    image: microservices-tutorial/product-service:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - mongo
+      - discovery-server
+
+  ## Order Service
+  order-service:
+    container_name: order-service
+    image: microservices-tutorial/order-service:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-order:5432/order-service
+    depends_on:
+      - postgres-order
+
+  ## Inventory Service
+  inventory-service:
+    container_name: inventory-service
+    image: microservices-tutorial/inventory-service:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-inventory:5432/inventory-service
+    depends_on:
+      - postgres-inventory
+
+  ## Notification Service
+  notification-service:
+    container_name: notification-service
+    image: microservices-tutorial/notification-service:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - broker
+      - discovery-server
+
+  ## Prometheus
+  prometheus:
+    image: prom/prometheus:v2.37.1
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - order-service
+      - inventory-service
+
+  ## Grafana
+  grafana:
+    image: grafana/grafana-oss:8.5.2
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    volumes:
+      - ./grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
