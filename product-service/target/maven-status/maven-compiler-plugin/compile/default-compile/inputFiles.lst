@@ -1,8 +1,0 @@
-D:\microservices-new\product-service\src\main\java\com\programmingtechie\productservice\dto\ProductResponse.java
-D:\microservices-new\product-service\src\main\java\com\programmingtechie\productservice\model\Product.java
-D:\microservices-new\product-service\src\main\java\com\programmingtechie\productservice\ProductServiceApplication.java
-D:\microservices-new\product-service\src\main\java\com\programmingtechie\productservice\util\DataLoader.java
-D:\microservices-new\product-service\src\main\java\com\programmingtechie\productservice\controller\ProductController.java
-D:\microservices-new\product-service\src\main\java\com\programmingtechie\productservice\dto\ProductRequest.java
-D:\microservices-new\product-service\src\main\java\com\programmingtechie\productservice\repository\ProductRepository.java
-D:\microservices-new\product-service\src\main\java\com\programmingtechie\productservice\service\ProductService.java

@@ -20,12 +20,13 @@
 		<module>order-service</module>
 		<module>inventory-service</module>
 		<module>discovery-server</module>
+		<module>api-gateway</module>
 	</modules>
 
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
-		<spring-cloud.version>2023.0.0</spring-cloud.version>
+		<spring-cloud.version>2024.0.1</spring-cloud.version>
 	</properties>
 
 	<dependencyManagement>
