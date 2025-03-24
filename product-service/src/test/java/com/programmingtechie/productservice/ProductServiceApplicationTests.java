@@ -33,32 +33,32 @@ class ProductServiceApplicationTests {
     @Autowired
     private ProductRepository productRepository;
 
-//    static {
-//        mongoDBContainer.start();
-//    }
-//
-//    @DynamicPropertySource
-//    static void setProperties(DynamicPropertyRegistry dymDynamicPropertyRegistry) {
-//        dymDynamicPropertyRegistry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-//    }
-//
-//    @Test
-//    void shouldCreateProduct() throws Exception {
-//        ProductRequest productRequest = getProductRequest();
-//        String productRequestString = objectMapper.writeValueAsString(productRequest);
-//        mockMvc.perform(MockMvcRequestBuilders.post("/api/product")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(productRequestString))
-//                .andExpect(status().isCreated());
-//        Assertions.assertEquals(1, productRepository.findAll().size());
-//    }
-//
-//    private ProductRequest getProductRequest() {
-//        return ProductRequest.builder()
-//                .name("iPhone 13")
-//                .description("iPhone 13")
-//                .price(BigDecimal.valueOf(1200))
-//                .build();
-//    }
+    static {
+        mongoDBContainer.start();
+    }
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry dymDynamicPropertyRegistry) {
+        dymDynamicPropertyRegistry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+    }
+
+    @Test
+    void shouldCreateProduct() throws Exception {
+        ProductRequest productRequest = getProductRequest();
+        String productRequestString = objectMapper.writeValueAsString(productRequest);
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/product")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(productRequestString))
+                .andExpect(status().isCreated());
+        Assertions.assertEquals(1, productRepository.findAll().size());
+    }
+
+    private ProductRequest getProductRequest() {
+        return ProductRequest.builder()
+                .name("iPhone 13")
+                .description("iPhone 13")
+                .price(BigDecimal.valueOf(1200))
+                .build();
+    }
 
 }
