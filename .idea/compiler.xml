@@ -15,19 +15,21 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
-        <module name="inventory-service" />
         <module name="discovery-server" />
-        <module name="api-gateway (1)" />
+        <module name="inventory-service" />
         <module name="api-gateway" />
-        <module name="product-service (1)" />
         <module name="product-service" />
-        <module name="discovery-server (1)" />
         <module name="order-service" />
-        <module name="order-service (1)" />
-        <module name="inventory-service (1)" />
         <module name="notification-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="api-gateway (1)" target="17" />
+      <module name="discovery-server (1)" target="17" />
+      <module name="inventory-service (1)" target="17" />
+      <module name="order-service (1)" target="17" />
+      <module name="product-service (1)" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
