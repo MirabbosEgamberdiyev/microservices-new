@@ -1,6 +1,5 @@
 package com.programmingtechie.orderservice.config;
 
-import com.programmingtechie.productservice.config.ResultAsync;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -55,7 +54,6 @@ public class SwaggerConfig {
             Schema<?> schema = SpringDocAnnotationsUtils.extractSchema(
                     openApi.getComponents(),
                     ResultAsync.class,
-                    null,
                     null,
                     null
             );

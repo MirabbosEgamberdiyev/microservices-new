@@ -29,4 +29,16 @@ public class InventoryService {
                                 .build()
                 ).toList();
     }
+    @Transactional(readOnly = true)
+    @SneakyThrows
+    public List<InventoryResponse> isInStock(String skuCode) {
+        log.info("Checking Inventory");
+        return inventoryRepository.findBySkuCode(skuCode).stream()
+                .map(inventory ->
+                        InventoryResponse.builder()
+                                .skuCode(inventory.getSkuCode())
+                                .isInStock(inventory.getQuantity() > 0)
+                                .build()
+                ).toList();
+    }
 }
